@@ -10,6 +10,10 @@ Application created for qualitative assessment of the discipline of algorithms
 * [Flask SQLAlchemy](https://docs.sqlalchemy.org)
 
 ## Installation
+Clone project in your computer
+```
+git clone https://github.com/alissonphp/python-avqualis-algorithm-class.git
+```
 Install in your computer globally
 ```
 pip install virtualenv
