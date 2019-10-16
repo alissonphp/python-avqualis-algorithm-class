@@ -1,0 +1,36 @@
+{% extends 'parts/base.html' %}
+{% block title %} Cursos {% endblock %}
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Cursos</h2>
+        <a href="/cursos/novo" class="btn btn-primary float-right mb-4">Criar um novo curso de graduação</a>
+    </div>
+    <div class="col-12">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Curso</th>
+                    <th>Código</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for curso in cursos %}
+                <tr>
+                    <td>{{ curso.id }}</td>
+                    <td>{{ curso.curso }}</td>
+                    <td>{{ curso.codigo }}</td>
+                    <td>
+                        <a title="Deletar" href="/cursos/delete/{{curso.id}}" class="btn btn-danger btn-sm">
+                            <i class="fa fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
