@@ -26,6 +26,9 @@
                     <td>{{ disciplina.semestre.semestre }}</td>
 
                     <td>
+                        <a title="Alunos na disciplina" href="/alunos/{{disciplina.id}}" class="btn btn-primary btn-sm">
+                            <i class="fa fa-users"></i>
+                        </a>
                         <a title="Deletar" href="/disciplinas/delete/{{disciplina.id}}" class="btn btn-danger btn-sm">
                             <i class="fa fa-trash"></i>
                         </a>

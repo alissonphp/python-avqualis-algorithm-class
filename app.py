@@ -56,15 +56,26 @@ class AlunoDisciplina(db.Model):
     disciplina = db.relationship('Disciplina',
         backref=db.backref('disciplinas', lazy=True))
 
+"""
+Rota para a página principal da aplicação
+"""
 @app.route('/')
 def index():
     return render_template('dashboard.html')
 
+"""
+Lista dos semestres cadastrados
+"""
 @app.route('/semestres/')
 def semestres():
     semestres = Semestre.query.order_by(Semestre.id).all()
     return render_template('semestres/lista.html', semestres=semestres)
 
+"""
+Rotas para cadastrar um novo semestre
+Caso o verbo da requisição seja GET a aplicação mostrar o formulário para inserir um novo item
+Se o verbo for POST insiro uma nova instância de semestre no banco de dados e redireciono para a lista
+"""
 @app.route('/semestres/novo', methods=['GET','POST'])
 def novo_semestre():
     if request.method == 'POST':
@@ -79,6 +90,11 @@ def novo_semestre():
     else:
         return render_template('semestres/criar.html')
 
+"""
+Recebendo o identificador do semestre (id) que deve ser um número inteiro
+Consulto no banco de dados se existe registro com esse identificador
+Caso exista, o registro é selecionado e excluído, senão, retorna um erro 404 (não encontrado)
+"""
 @app.route('/semestres/delete/<int:id>')
 def deletar_semestre(id):
     semestre_a_deletar = Semestre.query.get_or_404(id)
@@ -153,6 +169,25 @@ def deletar_disciplina(id):
     except:
         return 'Houve um problema ao deletar a disciplina'
 
+@app.route('/alunos/<int:disciplina>', methods=['GET','POST'])
+def alunos(disciplina):
+    infos_disciplina = Disciplina.query.get_or_404(disciplina)
+    if request.method == 'GET':
+        alunos_da_disciplina = AlunoDisciplina.query.filter(AlunoDisciplina.disciplina_id == disciplina)
+        return render_template('alunos/lista.html', alunos=alunos_da_disciplina, disciplina=infos_disciplina)
+    else:
+        nome = request.form['nome']
+        email = request.form['email']
+        print(nome, email)
+        novo_aluno = Aluno(nome=nome, email=email)
+        vincular_aluno_disciplina = AlunoDisciplina(aluno=novo_aluno, disciplina=infos_disciplina)
+        try:
+            db.session.add(novo_aluno)
+            db.session.add(vincular_aluno_disciplina)
+            db.commit()
+            return redirect('/alunos/'+disciplina)
+        except:
+            return 'Houve um problema ao cadastrar o novo aluno e vincular a disciplina'
 
 if __name__ == "__main__":
     app.run(debug=True)

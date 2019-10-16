@@ -1,0 +1,61 @@
+{% extends 'parts/base.html' %}
+{% block title %} Alunos na disciplina {{ disciplina.disciplina }} {% endblock %}
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Alunos na disciplina <span class="badge badge-success">{{ disciplina.disciplina }}</span></h2>
+        <a href="javascript:void(0)" class="btn btn-primary float-right mb-4 show-form">Cadastrar aluno em
+            {{ disciplina.disciplina }}</a>
+    </div>
+    <div class="col-12 aluno-form mb-4">
+        <form action="/alunos/{{disciplina.id}}" method="POST">
+            <div class="form-group">
+                <label for="identificador">Nome do aluno:</label>
+                <input type="text" class="form-control" placeholder="Máuro Sergio Cortella" name="nome"
+                    id="nome" required>
+            </div>
+            <div class="form-group">
+                <label for="identificador">E-mail:</label>
+                <input type="email" class="form-control" placeholder="Informe um e-mail válido" name="email"
+                    id="email" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Adicionar aluno</button>
+        </form>
+    </div>
+    <div class="col-12">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for aluno in alunos %}
+                <tr>
+                    <td>{{ aluno.id }}</td>
+                    <td>{{ aluno.nome }}</td>
+                    <td>{{ aluno.email }}</td>
+                    <td>
+                        <a title="Deletar" href="/cursos/delete/{{curso.id}}" class="btn btn-danger btn-sm">
+                            <i class="fa fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts%}
+<script>
+    $('.show-form').on('click', () => {
+        $('.aluno-form').toggle()
+    })
+</script>
+{% endblock %}
