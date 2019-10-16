@@ -1,0 +1,34 @@
+{% extends 'parts/base.html' %}
+{% block title %} Semestres {% endblock %}
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Semestres</h2>
+        <a href="/semestres/novo" class="btn btn-primary float-right mb-4">Iniciar novo semestre</a>
+    </div>
+    <div class="col-12">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Semestre</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for semestre in semestres %}
+                <tr>
+                    <td>{{ semestre.id }}</td>
+                    <td>{{ semestre.semestre }}</td>
+                    <td>
+                        <a title="Deletar" href="/semestres/delete/{{semestre.id}}" class="btn btn-danger btn-sm">
+                            <i class="fa fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

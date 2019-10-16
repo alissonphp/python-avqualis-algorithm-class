@@ -1,0 +1,19 @@
+{% extends 'parts/base.html' %}
+{% block title %} Iniciar novo semestre {% endblock %}
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Iniciar novo semestre</h2>
+        <a href="/semestres/" class="btn btn-secondary float-right mb-4">Voltar</a>
+    </div>
+    <div class="col-12">
+        <form action="/semestres/novo" method="POST">
+            <div class="form-group">
+                <label for="identificador">Identificador do semestre letivo:</label>
+                <input type="text" class="form-control" placeholder="Ex.: 2019.2" name="identificador" id="identificador" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
