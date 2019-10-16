@@ -1,0 +1,38 @@
+{% extends 'parts/base.html' %}
+{% block title %} Cadastrar nova disciplina na grade {% endblock %}
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Adicionar disciplina à grade do curso</h2>
+        <a href="/disciplinas/" class="btn btn-secondary float-right mb-4">Voltar</a>
+    </div>
+    <div class="col-12">
+        <form action="/disciplinas/nova" method="POST">
+            <div class="form-group">
+                <label for="identificador">Nome da disciplina:</label>
+                <input type="text" class="form-control" placeholder="Algoritmos I" name="disciplina" id="disciplina"
+                    required>
+            </div>
+            <div class="form-group">
+                <label for="semestre_id">Semestre:</label>
+                <select name="semestre_id" id="semestre_id" required class="form-control">
+                    <option value="">Selecione...</option>
+                    {% for s in semestres %}
+                    <option value="{{s.id}}">{{s.semestre}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="curso_id">Curso:</label>
+                <select name="curso_id" id="curso_id" required class="form-control">
+                    <option value="">Selecione...</option>
+                    {% for c in cursos %}
+                    <option value="{{c.id}}">{{c.curso}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Criar disciplina</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
