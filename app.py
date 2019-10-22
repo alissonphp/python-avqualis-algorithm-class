@@ -27,12 +27,12 @@ class Disciplina(db.Model):
     curso_id = db.Column(db.Integer, db.ForeignKey('curso.id'),
         nullable=False)
     curso = db.relationship('Curso',
-        backref=db.backref('cursos', lazy=True))
+        backref=db.backref('cursos', cascade="all, delete-orphan", lazy=True))
 
     semestre_id = db.Column(db.Integer, db.ForeignKey('semestre.id'),
         nullable=False)
     semestre = db.relationship('Semestre',
-        backref=db.backref('semestres', lazy=True))
+        backref=db.backref('semestres', cascade="all, delete-orphan", lazy=True))
 
     def __repr__(self):
         return '<Disciplina %r>' % self.disciplina
@@ -40,7 +40,7 @@ class Disciplina(db.Model):
 class Aluno(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(120), nullable=False)
-    email = db.Column(db.String(60), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
     
     def __repr__(self):
         return '<Aluno %r>' % self.nome
@@ -50,11 +50,32 @@ class AlunoDisciplina(db.Model):
     aluno_id = db.Column(db.Integer, db.ForeignKey('aluno.id'),
         nullable=False)
     aluno = db.relationship('Aluno',
-        backref=db.backref('alunos', lazy=True))
+        backref=db.backref('alunos', cascade="all, delete-orphan", lazy=True))
     disciplina_id = db.Column(db.Integer, db.ForeignKey('disciplina.id'),
         nullable=False)
     disciplina = db.relationship('Disciplina',
         backref=db.backref('disciplinas', lazy=True))
+    media = db.Column(db.Float(2), nullable=True)
+    media_final = db.Column(db.Float(2), nullable=True)
+    situacao = db.Column(db.String(40), nullable=True)
+
+class AlunoDisciplinaNota(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    aluno_disciplina_id = db.Column(db.Integer, db.ForeignKey('aluno_disciplina.id'),
+        nullable=False)
+    aluno_disciplina = db.relationship('AlunoDisciplina',
+        backref=db.backref('aluno_disciplina_nota', lazy=True))
+    tipo = db.Column(db.String(5), nullable=False)
+    nota = db.Column(db.Float(2), nullable=False)
+
+class AlunoDisciplinaPresenca(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    aluno_disciplina_id = db.Column(db.Integer, db.ForeignKey('aluno_disciplina.id'),
+        nullable=False)
+    aluno_disciplina = db.relationship('AlunoDisciplina',
+        backref=db.backref('aluno_disciplina_presenca', lazy=True))
+    data = db.Column(db.Date, nullable=False)
+    presenca = db.Column(db.Boolean(), nullable=False)
 
 """
 Rota para a página principal da aplicação
@@ -169,25 +190,128 @@ def deletar_disciplina(id):
     except:
         return 'Houve um problema ao deletar a disciplina'
 
+@app.route('/alunos/')
+def todos_alunos():
+    alunos = Aluno.query.order_by(Aluno.nome).all()
+    return render_template('alunos/lista.html', alunos=alunos)
+
+@app.route('/boletim/<int:aluno>')
+def boletim(aluno):
+    infos_aluno = Aluno.query.get_or_404(aluno)
+    disciplinas_do_aluno = AlunoDisciplina.query.filter(AlunoDisciplina.aluno_id == aluno)
+    return render_template('alunos/boletim.html', infos=infos_aluno, disciplinas_do_aluno=disciplinas_do_aluno)
+
 @app.route('/alunos/<int:disciplina>', methods=['GET','POST'])
 def alunos(disciplina):
     infos_disciplina = Disciplina.query.get_or_404(disciplina)
+    alunos_da_disciplina = AlunoDisciplina.query.filter(AlunoDisciplina.disciplina_id == disciplina)
+    
     if request.method == 'GET':
-        alunos_da_disciplina = AlunoDisciplina.query.filter(AlunoDisciplina.disciplina_id == disciplina)
-        return render_template('alunos/lista.html', alunos=alunos_da_disciplina, disciplina=infos_disciplina)
+        return render_template('alunos/lista_disciplina.html', alunos=alunos_da_disciplina, disciplina=infos_disciplina)
     else:
         nome = request.form['nome']
         email = request.form['email']
-        print(nome, email)
         novo_aluno = Aluno(nome=nome, email=email)
         vincular_aluno_disciplina = AlunoDisciplina(aluno=novo_aluno, disciplina=infos_disciplina)
         try:
             db.session.add(novo_aluno)
             db.session.add(vincular_aluno_disciplina)
-            db.commit()
-            return redirect('/alunos/'+disciplina)
+            db.session.commit()
+            return render_template('alunos/lista_disciplina.html', alunos=alunos_da_disciplina, disciplina=infos_disciplina)
         except:
             return 'Houve um problema ao cadastrar o novo aluno e vincular a disciplina'
+
+@app.route('/nota/<int:aluno_disciplina>/lancar', methods=['GET','POST'])
+def registrar_nota(aluno_disciplina):
+    infos = AlunoDisciplina.query.get_or_404(aluno_disciplina)
+    if request.method == 'GET':
+        return render_template('alunos/nota/registrar.html', infos=infos)
+    else:
+        tipo = request.form['tipo']
+        nota = request.form['nota']
+        try:
+            registrar = AlunoDisciplinaNota(aluno_disciplina=infos, tipo=tipo, nota=nota)
+            db.session.add(registrar)
+            db.session.commit()
+            verificar_notas(infos.id, tipo)
+            return render_template('alunos/nota/registrar.html', infos=infos)
+        except:
+            return 'Houve um problema ao registrar a nota do aluno na disciplina'
+
+@app.route('/presenca/<int:disciplina>/lancar', methods=['GET','POST'])
+def registrar_presenca(disciplina):
+    infos = Disciplina.query.get_or_404(disciplina)
+    alunos_da_disciplina = AlunoDisciplina.query.filter(AlunoDisciplina.disciplina_id == disciplina)
+    if request.method == 'GET':
+        return render_template('alunos/presenca/registrar.html', infos=infos, alunos=alunos_da_disciplina)
+    else:
+        data = request.form['data']
+        try:
+            for ad in alunos_da_disciplina:
+                presenca = request.form['aluno['+str(ad.aluno.id)+']']
+                registrar = AlunoDisciplinaPresenca(aluno_disciplina_id=ad.id, data=data, presenca=presenca)
+                db.session.add(registrar)
+                db.session.commit()
+
+            return render_template('alunos/presenca/registrar.html', infos=infos, alunos=alunos_da_disciplina)
+
+        except: 
+            return 'WIP'
+
+def verificar_notas(id, tipo):
+    if (tipo == 'P3' or tipo == 'REP' or tipo == 'RECFIN'):
+        p1 = get_nota(id, 'P1')
+        p2 = get_nota(id, 'P2')
+        p3 = get_nota(id, 'P3')
+        if tipo == 'REP':
+            rep = get_nota(id, 'REP')
+            if (p1 < p2 and p1 < p3):
+                media = format((rep+p2+p3)/3, '.2f')
+            elif (p2 < p1 and p2 < p3):
+                media = format((p1+rep+p3)/3, '.2f')
+            else:
+                media = format((p1+p2+rep)/3, '.2f')
+            atualizar_media(id, media)
+        elif tipo == 'RECFIN':
+            recfin = get_nota(id, 'RECFIN')
+            media_o = ((p1+p2+p3)/3 + recfin)/2
+            media = format(media_o, '.2f')
+            atualizar_media_final(id, media)
+        else:
+            media = format((p1+p2+p3)/3, '.2f')
+            atualizar_media(id, media)
+
+def get_nota(id, tipo):
+    res = AlunoDisciplinaNota.query.filter(AlunoDisciplinaNota.aluno_disciplina_id == id, AlunoDisciplinaNota.tipo == tipo).first()
+    return res.nota
+
+def atualizar_media(id, media):
+    aluno_disciplina = AlunoDisciplina.query.get_or_404(id)
+    aluno_disciplina.media = media
+    db.session.commit()
+    atualizar_situacao(id)
+
+def atualizar_media_final(id, media):
+    aluno_disciplina = AlunoDisciplina.query.get_or_404(id)
+    aluno_disciplina.media_final = media
+    db.session.commit()
+    atualizar_situacao(id)
+
+def atualizar_situacao(id):
+    aluno_disciplina = AlunoDisciplina.query.get_or_404(id)
+    if(aluno_disciplina.media_final != None and aluno_disciplina.media_final != ''):
+        if(aluno_disciplina.media_final >= 6):
+            aluno_disciplina.situacao = 'APROVADO NA FINAL'
+        else:
+            aluno_disciplina.situacao = 'REPROVADO'
+    else:
+        if(aluno_disciplina.media >= 7):
+            aluno_disciplina.situacao = 'APROVADO'
+        else:
+            aluno_disciplina.situacao = 'REPROVADO'
+    
+    db.session.commit()
+
 
 if __name__ == "__main__":
     app.run(debug=True)
