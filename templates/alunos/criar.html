@@ -1,25 +1,13 @@
 {% extends 'parts/base.html' %}
-{% block title %} Criar um novo curso de graduação {% endblock %}
+{% block title %} Cadastrar aluno {% endblock %}
 {% block body %}
 <div class="row">
     <div class="col-12">
-        <h2 class="mb-4">Criar um novo curso de graduação</h2>
-        <a href="/cursos/" class="btn btn-secondary float-right mb-4">Voltar</a>
+        <h2 class="mb-4">Cadastrar novo aluno</h2>
+        <a href="/alunos/" class="btn btn-secondary float-right mb-4">Voltar</a>
     </div>
     <div class="col-12">
-        <form action="/cursos/novo" method="POST">
-            <div class="form-group">
-                <label for="curso">Nome do curso:</label>
-                <input type="text" class="form-control" placeholder="Ex.: Engenharia de Software" name="curso"
-                    id="curso" required>
-            </div>
-            <div class="form-group">
-                <label for="codigo">Código identificador do curso:</label>
-                <input type="text" class="form-control" placeholder="Ex.: ENGSOF-01" name="codigo"
-                    id="codigo" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Criar Curso</button>
-        </form>
+        wip
     </div>
 </div>
 {% endblock %}

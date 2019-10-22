@@ -1,0 +1,54 @@
+{% extends 'parts/base.html' %}
+{% block title %} Registrar nota do aluno {% endblock %}
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Registrar nota para <span class="badge badge-info">{{infos.aluno.nome}}</span> em <span class="badge badge-success">{{infos.disciplina.disciplina}}</span></h2>
+        <a href="/alunos/{{infos.disciplina.id}}" class="btn btn-secondary float-right mb-4">Voltar</a>
+    </div>
+    <div class="col-12">
+        <form action="/nota/{{infos.id}}/lancar" method="POST">
+            <div class="form-group">
+                <label for="tipo">Tipo da nota:</label>
+                <select name="tipo" id="tipo" class="form-control" required>
+                    <option value="">Selecione...</option>
+                    <option value="P1">P1 - Primeira Avaliação</option>
+                    <option value="P2">P2 - Segunda Avaliação</option>
+                    <option value="P3">P3 - Avaliação Qualitativa</option>
+                    <option value="REP">REP - Reposição</option>
+                    <option value="RECFIN">RECFIN - Recuperação Final</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="nota">Nota:</label>
+                <input type="text" class="form-control" placeholder="Ex.: 8.5" name="nota"
+                    id="nota" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Registrar nota</button>
+        </form>
+    </div>
+</div>
+<div class="row mt-5">
+    <div class="col-12 mb-4">
+        <h3>Notas registradas na disciplina</h3>
+    </div>
+    <div class="col-12">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Nota</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for n in infos.aluno_disciplina_nota%}
+                <tr>
+                    <td>{{n.tipo}}</td>
+                    <td>{{n.nota}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

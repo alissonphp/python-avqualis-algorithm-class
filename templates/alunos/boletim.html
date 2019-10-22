@@ -1,0 +1,70 @@
+{% extends 'parts/base.html' %}
+{% block title %} Boletim do aluno {{infos.nome}} {% endblock %}
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-5">Boletim do aluno <span class="badge badge-info">{{infos.nome}}</span></h2>
+    </div>
+    <div class="col-12 mt-4">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>DISCIPLINAS</th>
+                    <th>NOTAS</th>
+                    <th>MÉDIA</th>
+                    <th>REC FINAL</th>
+                    <th>SITUAÇÃO</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in disciplinas_do_aluno %}
+                <tr>
+                    <td>{{ d.disciplina.disciplina }}</td>
+                    <td>
+                        <table class="table text-center">
+                            <thead>
+                                <tr>
+                                    <th>P1</th>
+                                    <th>P2</th>
+                                    <th>P3</th>
+                                    <th>REP</th>
+                                    <th>FIN</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    {% for nota in d.aluno_disciplina_nota %}
+                                    <td>{{nota.nota}}</td>
+                                    {% endfor %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                    <td>
+                        {% if d.media %}
+                        {{ d.media }}
+                        {% else %}
+                        Em curso
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if d.media_final %}
+                        {{ d.media_final }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if d.situacao %}
+                        {{ d.situacao }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

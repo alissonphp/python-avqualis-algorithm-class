@@ -1,0 +1,40 @@
+{% extends 'parts/base.html' %}
+{% block title %} Registro de presenças {% endblock %}
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Registrar presença de aula em <span class="badge badge-success">{{infos.disciplina}}</span>
+        </h2>
+        <a href="/alunos/{{infos.id}}" class="btn btn-secondary float-right mb-4">Voltar</a>
+    </div>
+    <div class="col-12">
+        <form action="/presenca/{{infos.id}}/lancar" method="POST">
+            <div class="form-group">
+                <label for="data">Informe a data da aula:</label>
+                <input type="date" class="form-control" required name="data" id="data">
+            </div>
+            <h3 class="mb-3">Lista de alunos</h3>
+            <table class="table table-bordered table-striped">
+                {% for a in alunos %}
+                <tr>
+                    <td width="70%">{{a.aluno.nome}}</td>
+                    <td class="text-center">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="aluno[{{a.aluno.id}}]" checked
+                                id="aluno_{{a.aluno.id}}_presente" value="1">
+                            <label class="form-check-label" for="aluno_{{a.aluno.id}}_presente">PRESENTE</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="aluno[{{a.aluno.id}}]" id="aluno_{{a.aluno.id}}_ausente"
+                                value="0">
+                            <label class="form-check-label" for="aluno_{{a.aluno.id}}_ausente">AUSENTE</label>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            <button type="submit" class="btn btn-primary btn-block">REGISTRAR</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
